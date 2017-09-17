@@ -17,9 +17,13 @@ KY-040 rotary encoder library for arduino and esp8266 devices.
 The wiring for ESP8266 can be as follows :
 
 Vcc     --> 3.3V
+
 GND     --> Ground
+
 SW      --> D7
+
 DT      --> D6
+
 CLK     --> D5
 
 ## Sample code
