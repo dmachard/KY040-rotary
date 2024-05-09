@@ -1,5 +1,6 @@
-# KY040 rotary decoder library
-KY-040 rotary encoder library for arduino and esp8266 devices.
+# HW-040/KY-040 Rotary Encoder Library
+
+KY-040 rotary encoder library for Arduino and ESP8266 devices.
 
 ## Features
 
@@ -14,7 +15,7 @@ KY-040 rotary encoder library for arduino and esp8266 devices.
 
 ## Wiring
 
-The wiring for ESP8266 can be as follows :
+The wiring for UNO/ESP8266 can be as follows :
 
 - Vcc     --> 3.3V
 - GND     --> Ground
