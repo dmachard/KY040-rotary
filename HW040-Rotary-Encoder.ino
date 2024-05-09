@@ -27,7 +27,7 @@
 #include "KY040rotary.h"
 
 // init the button
-KY040 Rotary(2, 3, 4);
+KY040 Rotary(5, 6, 7);
 
 
 void OnButtonClicked(void) {
@@ -51,7 +51,7 @@ void OnButtonRight(void) {
 
 void setup() {
   // open the serial port
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Starting...");
 
   /* Init in interrupts mode
