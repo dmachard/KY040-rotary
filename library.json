@@ -5,7 +5,7 @@
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/Semnodime/KY040-rotary.git"
+    "url": "https://github.com/dmachard/KY040-rotary.git"
   },
   "authors": 
   [
@@ -18,7 +18,7 @@
     }
   ],
   "dependencies": [],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "frameworks": "arduino",
   "platforms": "*",
   "architechtures": "*",
