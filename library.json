@@ -2,24 +2,19 @@
   "name": "KY040-rotary",
   "keywords": "KY040, KY40, encoder, rotary, sensor",
   "description": "Arduino Library for the KY040 rotary encoder",
-  "repository":
-  {
+  "repository": {
     "type": "git",
     "url": "https://github.com/dmachard/KY040-rotary.git"
   },
-  "authors": 
-  [
+  "authors": [
     {
       "name": "Denis Machard",
       "maintainer": true
-    },
-    {
-      "name": "Ted Liou",
     }
   ],
   "dependencies": [],
-  "version": "1.1.0",
+  "version": "2.0.0",
   "frameworks": "arduino",
   "platforms": "*",
-  "architechtures": "*",
+  "architectures": "*"
 }

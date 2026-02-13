@@ -24,54 +24,44 @@
   THE SOFTWARE.
 */
 
-#include "KY040rotary.h"
+//included only once
+#pragma once
 
-// init the button
-KY040 Rotary(5, 6, 7);
+typedef void(*callback)();
+typedef void(*isr)();
 
+class KY040
+{
+  public:
+    uint8_t pinClk;
+    uint8_t pinDt;
+    int pinSw;
 
-void OnButtonClicked(void) {
-  Serial.println("Button 1: clicked");
-}
-void OnButtonLeft(void) {
-  Serial.println("Button 1: rotating left");
-}
-void OnButtonRight(void) {
-  Serial.println("Button 1: rotating right");
-}
+    bool basicMode;
 
-/* Handlers for interrupts mode
-  void RSW1_SwitchInterruptHandler(void) {
-    RSW1.HandleSwitchInterrupt();
-  }
-  void RSW1_RotateInterruptHandler(void) {
-    RSW1.HandleRotateInterrupt();
-  }
-*/
+    volatile int swState;
+    unsigned long swLastTime;
+    bool swDebounce;
 
-void setup() {
-  // open the serial port
-  Serial.begin(9600);
-  Serial.println("Starting...");
+    volatile int dtState;
+    unsigned long dtLastTime;
+    int dtPreviousPos;
+    volatile int signalAB;
+    bool dtDebounce;
 
-  /* Init in interrupts mode
-    if ( !RSW1.Begin(RSW1_SwitchInterruptHandler, RSW1_RotateInterruptHandler) ) {
-  */
-  if ( !Rotary.Begin() ) {
-    Serial.println("unable to init rotate button");
-    while (1);
-  }
+  public:
+    KY040(uint8_t pinClk, uint8_t pinDt, uint8_t pinSw);
+    bool Begin(isr isr1 = NULL, isr isr2 = NULL);
+    void Process(unsigned long t);
+    void DecodeSignals(void);
+    void HandleSwitchInterrupt( void );
+    void HandleRotateInterrupt( void );
+    void OnButtonClicked( callback );
+    void OnButtonLeft( callback );
+    void OnButtonRight( callback );
 
-  // init callbacks
-  Rotary.OnButtonClicked(OnButtonClicked);
-  Rotary.OnButtonLeft(OnButtonLeft);
-  Rotary.OnButtonRight(OnButtonRight);
-
-  Serial.println("KY-040 rotary encoder OK");
-}
-
-
-void loop() {
-  Rotary.Process( millis() );
-}
-
+  protected:
+    callback _OnCbClick = NULL;
+    callback _OnCbLeft = NULL;
+    callback _OnCbRight = NULL;
+};

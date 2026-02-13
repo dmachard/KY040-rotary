@@ -24,14 +24,13 @@
   THE SOFTWARE.
 */
 
+#include "KY040-rotary.h"
 #include <Arduino.h>
-#include "KY040rotary.h"
 
-#define KY040_SW_DEBOUNCE	50
-#define KY040_DT_DEBOUNCE	160
+#define KY040_SW_DEBOUNCE 50
+#define KY040_DT_DEBOUNCE 160
 
-KY040::KY040(uint8_t pinClk, uint8_t pinDt, uint8_t pinSw)
-{
+KY040::KY040(uint8_t pinClk, uint8_t pinDt, uint8_t pinSw) {
   this->pinClk = pinClk;
   this->pinDt = pinDt;
   this->pinSw = pinSw;
@@ -47,22 +46,26 @@ KY040::KY040(uint8_t pinClk, uint8_t pinDt, uint8_t pinSw)
   this->dtPreviousPos = 0;
   this->dtDebounce = false;
 
+  this->_OnCbClick = NULL;
+  this->_OnCbLeft = NULL;
+  this->_OnCbRight = NULL;
+
   this->signalAB = 0;
 }
 
-bool KY040::Begin(isr isr1, isr isr2)
-{
+bool KY040::Begin(isr isr1, isr isr2) {
   pinMode(this->pinClk, INPUT);
   pinMode(this->pinDt, INPUT);
   pinMode(this->pinSw, INPUT_PULLUP);
 
-  if ( isr1 != NULL ) attachInterrupt(digitalPinToInterrupt(this->pinSw), isr1, CHANGE);
-  if ( isr2 != NULL ) {
+  if (isr1 != NULL)
+    attachInterrupt(digitalPinToInterrupt(this->pinSw), isr1, CHANGE);
+  if (isr2 != NULL) {
     attachInterrupt(digitalPinToInterrupt(this->pinClk), isr2, CHANGE);
     attachInterrupt(digitalPinToInterrupt(this->pinDt), isr2, CHANGE);
   }
 
-  if ( isr1 != NULL || isr2 != NULL ) {
+  if (isr1 != NULL || isr2 != NULL) {
     this->basicMode = false;
   }
 
@@ -70,9 +73,8 @@ bool KY040::Begin(isr isr1, isr isr2)
   return true;
 }
 
-void KY040::Process(unsigned long t)
-{
-  if ( this->basicMode ) {
+void KY040::Process(unsigned long t) {
+  if (this->basicMode) {
     this->DecodeSignals();
 
     if (digitalRead(this->pinSw) == LOW) {
@@ -81,53 +83,50 @@ void KY040::Process(unsigned long t)
   }
 
   // checking button with debouncing
-  if ( this->swState && this->swDebounce == false ) {
-    this->swLastTime = t % 1000;
+  if (this->swState && this->swDebounce == false) {
+    this->swLastTime = t;
     this->swDebounce = true;
   }
-  if ( this->swDebounce && ((t % 1000 - this->swLastTime) > KY040_SW_DEBOUNCE) ) {
+  if (this->swDebounce && ((t - this->swLastTime) > KY040_SW_DEBOUNCE)) {
     if (digitalRead(this->pinSw) == HIGH) {
-      if (this->_OnCbClick) this->_OnCbClick();
+      if (this->_OnCbClick)
+        this->_OnCbClick();
     }
     this->swState = 0;
     this->swDebounce = false;
   }
 
   // checking button direction with debouncing
-  if (this->dtState  && this->dtDebounce == false) {
-    this->dtLastTime = (t % 1000);
+  if (this->dtState && this->dtDebounce == false) {
+    this->dtLastTime = t;
     this->dtDebounce = true;
   }
-  if ( this->dtDebounce && ((t % 1000) - this->dtLastTime) > KY040_DT_DEBOUNCE ) {
+  if (this->dtDebounce && ((t - this->dtLastTime) > KY040_DT_DEBOUNCE)) {
     if (this->dtState == 1) {
-      if (this->_OnCbRight) this->_OnCbRight();
+      if (this->_OnCbRight)
+        this->_OnCbRight();
     }
     if (this->dtState == 2) {
-      if (this->_OnCbLeft) this->_OnCbLeft();
+      if (this->_OnCbLeft)
+        this->_OnCbLeft();
     }
     this->dtState = 0;
     this->dtDebounce = false;
   }
-
 }
 
-void KY040::HandleSwitchInterrupt(void)
-{
-  this->swState = 1;
-}
+void KY040::HandleSwitchInterrupt(void) { this->swState = 1; }
 
-void KY040::HandleRotateInterrupt(void)
-{
-  this->DecodeSignals();
-}
+void KY040::HandleRotateInterrupt(void) { this->DecodeSignals(); }
 
-void KY040::DecodeSignals(void)
-{
+void KY040::DecodeSignals(void) {
   int signalA = digitalRead(this->pinClk);
   int signalB = digitalRead(this->pinDt);
 
-  int encoded = (signalB << 1) | signalA;  // converting the 2 pin value to single number
-  int sum  = (this->signalAB << 2) | encoded; // adding it to the previous encoded value
+  int encoded =
+      (signalB << 1) | signalA; // converting the 2 pin value to single number
+  int sum = (this->signalAB << 2) |
+            encoded; // adding it to the previous encoded value
 
   if (sum == 0b0001 || sum == 0b0111 || sum == 0b1110 || sum == 0b1000) {
     this->dtState = 1;
@@ -139,17 +138,8 @@ void KY040::DecodeSignals(void)
   this->signalAB = encoded; // store this value for next time
 }
 
-void KY040::OnButtonClicked( callback cb )
-{
-  this->_OnCbClick = cb;
-}
+void KY040::OnButtonClicked(callback cb) { this->_OnCbClick = cb; }
 
-void KY040::OnButtonLeft( callback cb )
-{
-  this->_OnCbLeft = cb;
-}
+void KY040::OnButtonLeft(callback cb) { this->_OnCbLeft = cb; }
 
-void KY040::OnButtonRight( callback cb )
-{
-  this->_OnCbRight = cb;
-}
+void KY040::OnButtonRight(callback cb) { this->_OnCbRight = cb; }
